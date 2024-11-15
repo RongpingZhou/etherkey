@@ -82,7 +82,7 @@ ser = serial.Serial(device, 57600)
 # make sure we're in Command mode
 # send ctrl-Q, then 1
 ser.write("\x11")
-time.sleep(0.1)
+time.sleep(1)
 ser.write("1")
 time.sleep(0.1)
 
