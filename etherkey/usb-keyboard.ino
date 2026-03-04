@@ -190,13 +190,6 @@ void usb_send_key(uint16_t key, uint16_t mod=0) {
   Keyboard.press(key);
 }
 
-void usb_send_no_release(uint16_t key, uint16_t mod=0) {
-  // Uses Keyboard.press from the Teensyduino Core Library
-  // key can be either a ascii char or a keycode
-  if (mod) Keyboard.press(mod);
-  Keyboard.press(key);
-}
-
 // Interactive mode functions
 void interactive_mode(char in_ascii) {
   uint16_t keycode;
@@ -424,7 +417,7 @@ void c_send(char* pch) {
         braces = true;
         break;
       default:
-        usb_send_no_release(*c, modifier);
+        usb_send_key(*c, modifier);
         modifier = 0;
         break;
     }
