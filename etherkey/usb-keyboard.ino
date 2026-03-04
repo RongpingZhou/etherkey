@@ -188,7 +188,7 @@ void usb_send_key(uint16_t key, uint16_t mod=0) {
 #endif
   if (mod) Keyboard.press(mod);
   Keyboard.press(key);
-  delay(1)
+  delay(1);
   Keyboard.releaseAll();
 }
 
