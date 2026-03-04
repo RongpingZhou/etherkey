@@ -3,7 +3,7 @@
 #define HWSERIAL Serial1
 #include "utils.h"
 
-// #define MYDEBUG
+#define MYDEBUG
 #define KBD_BUFFSZ 200
 #define KEYNAME_BUFFSZ 25
 #define PREFIX 17 // CTRL-Q
