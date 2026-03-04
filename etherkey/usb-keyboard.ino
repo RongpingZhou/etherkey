@@ -430,7 +430,7 @@ void c_send(char* pch) {
     }
     c++;
   }
-  delay(50)
+  delay(50);
   Keyboard.releaseAll();
 }
 
