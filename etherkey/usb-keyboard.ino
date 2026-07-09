@@ -423,7 +423,25 @@ void c_send(char* pch) {
     }
     c++;
   }
-  delay(67); // 1000/60 = 66.6
+    // @inproceedings{10.1145/3173574.3174220,
+    // author = {Dhakal, Vivek and Feit, Anna Maria and Kristensson, Per Ola and Oulasvirta, Antti},
+    // title = {Observations on Typing from 136 Million Keystrokes},
+    // year = {2018},
+    // isbn = {9781450356206},
+    // publisher = {Association for Computing Machinery},
+    // address = {New York, NY, USA},
+    // url = {https://doi.org/10.1145/3173574.3174220},
+    // doi = {10.1145/3173574.3174220},
+    // abstract = {We report on typing behaviour and performance of 168,000 volunteers in an online study. The large dataset allows detailed statistical analyses of keystroking patterns, linking them to typing performance. Besides reporting distributions and confirming some earlier findings, we report two new findings. First, letter pairs that are typed by different hands or fingers are more predictive of typing speed than, for example, letter repetitions. Second, rollover-typing, wherein the next key is pressed before the previous one is released, is sur- prisingly prevalent. Notwithstanding considerable variation in typing patterns, unsupervised clustering using normalised inter-key intervals reveals that most users can be divided into eight groups of typists that differ in performance, accuracy, hand and finger usage, and rollover. The code and dataset are released for scientific use.},
+    // booktitle = {Proceedings of the 2018 CHI Conference on Human Factors in Computing Systems},
+    // pages = {1–12},
+    // numpages = {12},
+    // keywords = {text entry, modern typing behavior, large-scale study},
+    // location = {Montreal QC, Canada},
+    // series = {CHI '18}
+    // }
+  delayMicroseconds(116240); // mean value from the paper titiled "Observations on Typing from 136 Million Keystrokes"
+  // delay(67); // 1000/60 = 66.6
   Keyboard.releaseAll();
 }
 
