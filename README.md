@@ -106,8 +106,8 @@ to ensure to use 67 millisecond key press duration in the tag of discrete_action
     * Select USB Type, click Tools > USB Type > Keyboard or select USB Type, click Tools > USB Type > Serial + Keyboard + Mouse + Joystick
     * Select port, click Tools > Port > /dev/hidraw5 RawHID (Teensy 4.1)
     * Then click Sketch > Verify/Compile to compile the code.
-    * Teensy window pops up, press Button on Teensy to manually enter Program Mode.
     * Click Sketch > Upload to upload the code to Teensy.
+    * Teensy window pops up, press Button on Teensy to manually enter Program Mode.
 
 ### b) Direct connection to Teensy
 You may connect directly to the Teensy, using a USB-to-UART Adapter or USB-to-RS232 cable.
