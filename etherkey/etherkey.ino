@@ -10,6 +10,7 @@ int newmode = 0;
 enum mode {INVALID, COMMAND, INTERACTIVE, DEBUG};
 const char* mode_strings[] = {"invalid", "command", "interactive", "debug"};
 const char* selectMode = "Select Inputmode: [1] Command - [2] Interactive - [3] Debug";
+volatile bool key_pressing = false;
 
 void setup() {
   HWSERIAL.begin(57600);
@@ -18,9 +19,17 @@ void setup() {
   SerialPrintfln("Switching to %s mode", mode_strings[mode]);
 }
 
+void clear_serial_buffer() {
+  while(HWSERIAL.available() > 0) {
+    HWSERIAL.read();
+  }
+}
+
 void loop() {
-  if (HWSERIAL.available() > 0) {
+  // if (HWSERIAL.available() > 0) {
+  if ((!key_pressing) && HWSERIAL.available() > 0) {
     in_ascii = HWSERIAL.read();
+    // SerialPrintfln("re");
 
     if (in_ascii<0 || in_ascii>127)
       // Ignore non-basic ascii characters

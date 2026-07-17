@@ -188,7 +188,6 @@ void usb_send_key(uint16_t key, uint16_t mod=0) {
 #endif
   if (mod) Keyboard.press(mod);
   Keyboard.press(key);
-  Keyboard.releaseAll();
 }
 
 // Interactive mode functions
@@ -217,13 +216,27 @@ void interactive_mode(char in_ascii) {
 // Command mode functions
 void command_mode(char in_ascii) {
   uint16_t keycode = special_char_to_keycode(in_ascii);
+  unsigned long start_time = micros();
+  unsigned long elapse_time = micros() - start_time;
+  // SerialPrintfln("\n\rkeycode: %d\n\r", keycode);
 
   if(keycode) {
     switch(keycode) {
       case KEY_ENTER:
+        // start_time = micros();
         SerialPrintfln("");
         kbd_buff[kbd_idx] = '\0';
+        // for(int i = 0; i < strlen(kbd_buff); i++){
+        //   HWSERIAL.write(kbd_buff[i]);
+        // }
+        // char kbd_buff_copy[200];
+        // strcpy(kbd_buff_copy, kbd_buff);
+
+        // SerialPrintfln("kbd_buff: %s", kbd_buff);
         c_parse(kbd_buff);
+        // elapse_time = micros() - start_time;
+        // SerialPrintfln("elapse_time: %d", elapse_time);
+        // memset(kbd_buff, 0, KBD_BUFFSZ);
         crs_idx = kbd_idx;
         kbd_idx = 0;
         break;
@@ -264,17 +277,30 @@ void command_mode(char in_ascii) {
     command_mode('\n');
   } else if (in_ascii <= 26) {
   } else {
-    HWSERIAL.write(in_ascii);
+    // HWSERIAL.write(in_ascii);
     if (crs_idx>kbd_idx) crs_idx = kbd_idx;
     kbd_buff[crs_idx++] = in_ascii;
     if (kbd_idx<crs_idx) kbd_idx++;
+    // if(!key_pressing)
+    // {
+    //   HWSERIAL.write(in_ascii);
+    //   if (crs_idx>kbd_idx) crs_idx = kbd_idx;
+    //   kbd_buff[crs_idx++] = in_ascii;
+    //   if (kbd_idx<crs_idx) kbd_idx++;
+    // }
   }
 }
 
 void c_parse(char* str) {
   char* pch;
 
-  if (!(pch = strtok(str," "))) return;
+  key_pressing = true;
+
+  if (!(pch = strtok(str," "))){
+    key_pressing = false;
+    return;
+  }
+  unsigned long start = micros();
 #ifdef MYDEBUG
   SerialPrintfln("\tCommand: %-15s -> %x", pch, str2int(pch));
 #endif
@@ -307,6 +333,15 @@ void c_parse(char* str) {
       }
       break;
   }
+  if (key_pressing) {
+    while (micros() - start <= (116240)) // mean value from the paper titiled "Observations on Typing from 136 Million Keystrokes"
+    {
+      clear_serial_buffer();
+    }
+  }
+  key_pressing = false;
+  Keyboard.releaseAll();
+  SerialPrintf("Released\n");
 }
 
 bool c_parse_ext(char* str, bool send_single, int modifier) {
@@ -424,6 +459,37 @@ void c_send(char* pch) {
     }
     c++;
   }
+  // @inproceedings{10.1145/3173574.3174220,
+  // author = {Dhakal, Vivek and Feit, Anna Maria and Kristensson, Per Ola and Oulasvirta, Antti},
+  // title = {Observations on Typing from 136 Million Keystrokes},
+  // year = {2018},
+  // isbn = {9781450356206},
+  // publisher = {Association for Computing Machinery},
+  // address = {New York, NY, USA},
+  // url = {https://doi.org/10.1145/3173574.3174220},
+  // doi = {10.1145/3173574.3174220},
+  // abstract = {We report on typing behaviour and performance of 168,000 volunteers in an online study. 
+  // The large dataset allows detailed statistical analyses of keystroking patterns, linking them to typing performance. 
+  // Besides reporting distributions and confirming some earlier findings, we report two new findings. 
+  // First, letter pairs that are typed by different hands or fingers are more predictive of typing speed than, 
+  // for example, letter repetitions. Second, rollover-typing, wherein the next key is pressed before the previous one is released, 
+  // is sur- prisingly prevalent. Notwithstanding considerable variation in typing patterns, 
+  // unsupervised clustering using normalised inter-key intervals reveals that most users can be divided into 
+  // eight groups of typists that differ in performance, accuracy, hand and finger usage, and rollover. 
+  // The code and dataset are released for scientific use.},
+  // booktitle = {Proceedings of the 2018 CHI Conference on Human Factors in Computing Systems},
+  // pages = {1–12},
+  // numpages = {12},
+  // keywords = {text entry, modern typing behavior, large-scale study},
+  // location = {Montreal QC, Canada},
+  // series = {CHI '18}
+  // }
+  // delayMicroseconds(116240); // mean value from the paper titiled "Observations on Typing from 136 Million Keystrokes"
+  // // delay(67); // 1000/60 = 66.6
+  // // memset(kbd_buff, 0, KBD_BUFFSZ);
+  // // memset(c, 0, KBD_BUFFSZ);
+  // // memset(pth, 0, KBD_BUFFSZ);
+  // Keyboard.releaseAll();
 }
 
 void c_unicode(char* pch, bool linux) {
@@ -439,7 +505,7 @@ void c_unicode(char* pch, bool linux) {
     }
     usb_send_key(KEY_ENTER);
   } else {
-    if (!keyboard_leds & (1<<0))
+    if ((!keyboard_leds) & (1<<0))
       usb_send_key(KEY_NUM_LOCK);
     Keyboard.press(MODIFIERKEY_ALT);
     Keyboard.press(KEYPAD_PLUS);
