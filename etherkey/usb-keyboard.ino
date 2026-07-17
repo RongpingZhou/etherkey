@@ -216,13 +216,27 @@ void interactive_mode(char in_ascii) {
 // Command mode functions
 void command_mode(char in_ascii) {
   uint16_t keycode = special_char_to_keycode(in_ascii);
+  unsigned long start_time = micros();
+  unsigned long elapse_time = micros() - start_time;
+  // SerialPrintfln("\n\rkeycode: %d\n\r", keycode);
 
   if(keycode) {
     switch(keycode) {
       case KEY_ENTER:
+        // start_time = micros();
         SerialPrintfln("");
         kbd_buff[kbd_idx] = '\0';
+        // for(int i = 0; i < strlen(kbd_buff); i++){
+        //   HWSERIAL.write(kbd_buff[i]);
+        // }
+        // char kbd_buff_copy[200];
+        // strcpy(kbd_buff_copy, kbd_buff);
+
+        // SerialPrintfln("kbd_buff: %s", kbd_buff);
         c_parse(kbd_buff);
+        // elapse_time = micros() - start_time;
+        // SerialPrintfln("elapse_time: %d", elapse_time);
+        // memset(kbd_buff, 0, KBD_BUFFSZ);
         crs_idx = kbd_idx;
         kbd_idx = 0;
         break;
@@ -263,17 +277,30 @@ void command_mode(char in_ascii) {
     command_mode('\n');
   } else if (in_ascii <= 26) {
   } else {
-    HWSERIAL.write(in_ascii);
+    // HWSERIAL.write(in_ascii);
     if (crs_idx>kbd_idx) crs_idx = kbd_idx;
     kbd_buff[crs_idx++] = in_ascii;
     if (kbd_idx<crs_idx) kbd_idx++;
+    // if(!key_pressing)
+    // {
+    //   HWSERIAL.write(in_ascii);
+    //   if (crs_idx>kbd_idx) crs_idx = kbd_idx;
+    //   kbd_buff[crs_idx++] = in_ascii;
+    //   if (kbd_idx<crs_idx) kbd_idx++;
+    // }
   }
 }
 
 void c_parse(char* str) {
   char* pch;
 
-  if (!(pch = strtok(str," "))) return;
+  key_pressing = true;
+
+  if (!(pch = strtok(str," "))){
+    key_pressing = false;
+    return;
+  }
+  unsigned long start = micros();
 #ifdef MYDEBUG
   SerialPrintfln("\tCommand: %-15s -> %x", pch, str2int(pch));
 #endif
@@ -306,6 +333,15 @@ void c_parse(char* str) {
       }
       break;
   }
+  if (key_pressing) {
+    while (micros() - start <= (116240)) // mean value from the paper titiled "Observations on Typing from 136 Million Keystrokes"
+    {
+      clear_serial_buffer();
+    }
+  }
+  key_pressing = false;
+  Keyboard.releaseAll();
+  SerialPrintf("Released\n");
 }
 
 bool c_parse_ext(char* str, bool send_single, int modifier) {
@@ -448,9 +484,12 @@ void c_send(char* pch) {
   // location = {Montreal QC, Canada},
   // series = {CHI '18}
   // }
-  delayMicroseconds(116240); // mean value from the paper titiled "Observations on Typing from 136 Million Keystrokes"
-  // delay(67); // 1000/60 = 66.6
-  Keyboard.releaseAll();
+  // delayMicroseconds(116240); // mean value from the paper titiled "Observations on Typing from 136 Million Keystrokes"
+  // // delay(67); // 1000/60 = 66.6
+  // // memset(kbd_buff, 0, KBD_BUFFSZ);
+  // // memset(c, 0, KBD_BUFFSZ);
+  // // memset(pth, 0, KBD_BUFFSZ);
+  // Keyboard.releaseAll();
 }
 
 void c_unicode(char* pch, bool linux) {
@@ -466,7 +505,7 @@ void c_unicode(char* pch, bool linux) {
     }
     usb_send_key(KEY_ENTER);
   } else {
-    if (!keyboard_leds & (1<<0))
+    if ((!keyboard_leds) & (1<<0))
       usb_send_key(KEY_NUM_LOCK);
     Keyboard.press(MODIFIERKEY_ALT);
     Keyboard.press(KEYPAD_PLUS);
