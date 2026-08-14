@@ -6,6 +6,10 @@ By using dedicated hardware it is possible to control systems even before the op
 
 Version
 -------
+15/August/2026 by Rongping Zhou
+
+Write the instructions to flash the Teensy board with 116 ms delay, this is to emulate 116 ms key press duration
+
 9/July/2026 by Rongping Zhou
 
 Write the instructions to flash the Teensy board with 67ms delay, this is to emulate 67ms key press duration
@@ -95,10 +99,19 @@ sudo cp 00-teensy.rules /etc/udev/rules.d/
 ```shell
 mkdir -p ~/hardware
 cd ~/hardware
+```
+
+```shell
 git clone https://github.com/RongpingZhou/etherkey.git
 git checkout discrete_action/v1.3
 ```
 to ensure to use 67 millisecond key press duration in the tag of discrete_action/v1.3
+
+```shell
+git clone https://github.com/RongpingZhou/etherkey.git
+git checkout discrete_action/v1.6
+```
+to ensure to use 116240 microsecond (116.24 millisecond) key press duration in the tag of discrete_action/v1.6
 
 * Flash the code
     * Open etherkey.ino
