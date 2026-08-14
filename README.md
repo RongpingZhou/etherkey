@@ -4,6 +4,16 @@ Emulate a conventional USB keyboard with a scriptable network capable microcontr
 
 By using dedicated hardware it is possible to control systems even before the operating system is booted and without being dependent on the running software. For example this allows automatic bootloder selectios or modification of BIOS settings.
 
+Version
+-------
+15/August/2026 by Rongping Zhou
+
+Write the instructions to flash the Teensy board with 116 ms delay, this is to emulate 116 ms key press duration
+
+9/July/2026 by Rongping Zhou
+
+Write the instructions to flash the Teensy board with 67ms delay, this is to emulate 67ms key press duration
+
 Requirements
 ------------
 * [Teensy](https://www.pjrc.com/teensy/index.html) (tested on Teensy 3 and 4.1),
@@ -16,14 +26,121 @@ Setup
 * Flash the Teensy with the sketch in the etherkey folder. (Using [Teensyduino](https://www.pjrc.com/teensy/teensyduino.html))
 * Connect the Teensy's USB-Port to the System you want to control.
 
-### a) Direct connection to Teensy
-You may connect directly to the Teensy, using a USB-to-UART Adapter.
+### a) Flash the Teensy with the sketch in the etherkey folder.
+* Prepare the computer, make sure that FUSE is installed on your system:
+
+```shell
+sudo add-apt-repository universe
+sudo apt install libfuse2
+```
+* Refer to the below link for downloading and installing Arduino IDE 2:
+
+https://docs.arduino.cc/software/ide-v2/tutorials/getting-started/ide-v2-downloading-and-installing/
+
+* Download Arduino IDE from the website:
+
+https://www.arduino.cc/en/software/
+
+* Before we can launch the editor, we need to first make it an executable file. This is done by:
+
+    * right-click the file,
+    * choose Properties,
+    * select Permissions tab,
+    * tick the Allow executing file as program box.
+
+* To enable the Arduino IDE to access the serial port and upload code to your board, the following rule 
+```shell
+SUBSYSTEM=="usb", ATTR{idVendor}=="2341", ATTR{idProduct}=="0043", MODE="0666"
+```
+
+can be added to
+
+```shell
+/etc/udev/rules.d/99-arduino.rules
+```
+
+You can now double click the file to launch the Arduino IDE 2 on your Linux machine. 
+
+* How to How to get Teensy 4.1 board
+
+    Teensy 4.1 board can be bought from the local online store:
+
+    https://core-electronics.com.au/teensy-4-1-headers.html
+
+    or
+
+    https://www.pjrc.com/store/
+
+
+    Refer to the below website:
+
+    https://www.pjrc.com/teensy/td_download.html
+
+* Teensyduino
+
+    To install Teensy on Arduino IDE 2.x, click File > Preferences (on MacOS, click Arduino IDE > Settings). On Windows 11 laptops with a small touchscreen display, you may need to scroll down to even if no scrollbar appears. In "Additional boards manager URLs", copy this link:
+
+    https://www.pjrc.com/teensy/package_teensy_index.json
+
+    In the main Arduino window, open Boards Manager by clicking the left-side board icon, search for "teensy", and click "Install".
+
+    Download the Linux udev rules from https://www.pjrc.com/teensy/00-teensy.rules and copy the file to /etc/udev/rules.d.
+
+```shell
+sudo cp 00-teensy.rules /etc/udev/rules.d/
+```
+
+* Etherkey
+
+    Etherkey is a Teensy 4.1 based USB HID device that can be used to send keystrokes to a computer. It is designed to be used with the Arduino IDE and can be programmed using the Arduino programming language.
+
+    * Download the Etherkey code from the GitHub repository.
+
+```shell
+mkdir -p ~/hardware
+cd ~/hardware
+```
+
+```shell
+git clone https://github.com/RongpingZhou/etherkey.git
+git checkout discrete_action/v1.3
+```
+to ensure to use 67 millisecond key press duration in the tag of discrete_action/v1.3
+
+```shell
+git clone https://github.com/RongpingZhou/etherkey.git
+git checkout discrete_action/v1.6
+```
+to ensure to use 116240 microsecond (116.24 millisecond) key press duration in the tag of discrete_action/v1.6
+
+* Flash the code
+    * Open etherkey.ino
+    * Select Teensy 4.1 hardware on Arduino IDE 2.x, click Tools > Board > Teensy (for Arduino 2.04 or later) > Teensy 4.1.
+    * Select USB Type, click Tools > USB Type > Keyboard or select USB Type, click Tools > USB Type > Serial + Keyboard + Mouse + Joystick
+    * Select port, click Tools > Port > /dev/hidraw5 RawHID (Teensy 4.1)
+    * Then click Sketch > Verify/Compile to compile the code.
+    * Click Sketch > Upload to upload the code to Teensy.
+    * Teensy window pops up, press Button on Teensy to manually enter Program Mode.
+
+### b) Direct connection to Teensy
+You may connect directly to the Teensy, using a USB-to-UART Adapter or USB-to-RS232 cable.
 
 Connect Ground to Teensy's GND-Pin, TX to Pin 0, RX to Pin 1.
 
-Now you can use any tool you like to connect to the Teensy. Baudrate is 57600, device most likely `/dev/ttyUSB0` on Linux/UNIX. For example: `cu -l /dev/ttyUSB0 -s 57600`
+When USB to UART cable or USB-to-RS232 cable connects to an Ubuntu machine, there has already been a /dev/ttyUSB0 directory there, delet it with the below command:
 
-### b) Using a Raspberry PI for Network features
+```shell
+sudo rm -r /dev/ttyUSB0
+```
+
+Then connect the USB to UART cable or USB-to-RS232 cable to this computer, it should recognize the USB to UART serial device as /dev/ttyUSB0.
+
+After last step, you can use the program for the paper titled "Measure Sim-to-Real Gap: Designing an Affordable Real-World Benchmark Platform for Reinforcement Learning in AIoT Systems" at the repository of https://github.com/RongpingZhou/real_world_program
+
+Or you can use any tool you like to connect to the Teensy. Baudrate is 57600, device most likely `/dev/ttyUSB0` on Linux/UNIX. For example: `cu -l /dev/ttyUSB0 -s 57600`
+
+
+### c) Using a Raspberry PI for Network features
 Example setup with a Raspberry PI for the ethernet connection.
 
 ![](doc/teensy-pi_bb.png)
