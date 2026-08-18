@@ -103,12 +103,6 @@ cd ~/hardware
 
 ```shell
 git clone https://github.com/RongpingZhou/etherkey.git
-git checkout discrete_action/v1.3
-```
-to ensure to use 67 millisecond key press duration in the tag of discrete_action/v1.3
-
-```shell
-git clone https://github.com/RongpingZhou/etherkey.git
 git checkout discrete_action/v1.6
 ```
 to ensure to use 116240 microsecond (116.24 millisecond) key press duration in the tag of discrete_action/v1.6
