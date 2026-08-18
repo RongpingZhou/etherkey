@@ -127,7 +127,7 @@ You may connect directly to the Teensy, using a USB-to-UART Adapter or USB-to-RS
 
 Connect Ground to Teensy's GND-Pin, TX to Pin 0, RX to Pin 1.
 
-When USB to UART cable or USB-to-RS232 cable connects to an Ubuntu machine, there has already been a /dev/ttyUSB0 directory there, delet it with the below command:
+When USB to UART cable or USB-to-RS232 cable connects to an Ubuntu machine, there has already been a /dev/ttyUSB0 directory there, delete it with the below command:
 
 ```shell
 sudo rm -r /dev/ttyUSB0
